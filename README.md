@@ -14,7 +14,7 @@ public class OcrTest {
         try {
             text = OcrUtils.ocr(url);
         } catch (NotFoundValidAipOcrException e) {
-            // 处理操作
+            // do something
             e.printStackTrace();
         }
         System.out.println(text);
