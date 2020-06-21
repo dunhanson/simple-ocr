@@ -40,7 +40,7 @@ public class OcrUtils {
     /**
      * 文本识别
      * @param pathOrUrl
-     * @return
+     * @return 字符串
      */
     public static String ocr(String pathOrUrl) throws NotFoundValidAipOcrException {
         if(store.isEmpty()) {
@@ -80,7 +80,7 @@ public class OcrUtils {
     /**
      * 获取字符串结果
      * @param res
-     * @return
+     * @return 字符串
      */
     public static String getWordsResult(JSONObject res) {
         StringBuilder stringBuilder = new StringBuilder();
