@@ -66,7 +66,7 @@ public class OcrUtils {
                 // 19请求总量超限额
                 store.remove(app);
             } else if (errorCode == 14) {
-                // IAM 鉴权失败
+                // 14IAM 鉴权失败
                 store.remove(app);
             }
             log.warn(res.toString() + "," + app.toString());
