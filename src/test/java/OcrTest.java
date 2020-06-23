@@ -1,16 +1,55 @@
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import site.dunhanson.ocr.exception.NotFoundValidAipOcrException;
-import site.dunhanson.ocr.utils.OcrUtils;
+import site.dunhanson.ocr.baidu.exception.NotFoundValidAipOcrException;
+import site.dunhanson.ocr.baidu.exception.OcrAccountInvalidException;
+import site.dunhanson.ocr.baidu.utils.BaiduOcrUtils;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class OcrTest {
     @Test
-    public void start() {
+    public void testURL() {
         String url = "http://bxkc.oss-cn-shanghai.aliyuncs.com/swf/1591962046774.jpg";
         String text = null;
         try {
-            text = OcrUtils.ocr(url);
+            text = BaiduOcrUtils.ocr(url);
         } catch (NotFoundValidAipOcrException e) {
-            // 处理操作
+            e.printStackTrace();
+        } catch (OcrAccountInvalidException e) {
+            e.printStackTrace();
+        }
+        System.out.println(text);
+    }
+
+    @Test
+    public void testFile() {
+        File file = new File("D:\\Test\\image\\1591962046774.jpg");
+        String text = null;
+        try {
+            text = BaiduOcrUtils.ocr(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OcrAccountInvalidException e) {
+            e.printStackTrace();
+        } catch (NotFoundValidAipOcrException e) {
+            e.printStackTrace();
+        }
+        System.out.println(text);
+    }
+
+    @Test
+    public void TestBytes() {
+        File file = new File("D:\\Test\\image\\1591962046774.jpg");
+        String text = null;
+        try (InputStream input = new FileInputStream(file)){
+            text = BaiduOcrUtils.ocr(IOUtils.toByteArray(input));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OcrAccountInvalidException e) {
+            e.printStackTrace();
+        } catch (NotFoundValidAipOcrException e) {
             e.printStackTrace();
         }
         System.out.println(text);

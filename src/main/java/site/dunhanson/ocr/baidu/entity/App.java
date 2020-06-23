@@ -1,4 +1,4 @@
-package site.dunhanson.ocr.entity;
+package site.dunhanson.ocr.baidu.entity;
 
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package site.dunhanson.ocr.exception;
+package site.dunhanson.ocr.baidu.exception;
 
 /**
  * @author dunhanson
