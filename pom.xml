@@ -6,7 +6,7 @@
 
     <groupId>site.dunhanson.ocr</groupId>
     <artifactId>simple-ocr</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>simple ocr</description>
     <url>https://github.com/dunhanson/baidu-ocr</url>
