@@ -61,9 +61,10 @@ public class BaiduOcrUtils {
     /**
      * 文本识别
      * @param pathOrUrl
-     * @return 文本
+     * @return
+     * @throws NotFoundValidAipOcrException
      */
-    public static String ocr(String pathOrUrl) throws NotFoundValidAipOcrException, OcrAccountInvalidException {
+    public static String ocr(String pathOrUrl) throws NotFoundValidAipOcrException {
         App app = getApp();
         AipOcr aipOcr = store.get(app);
         // 判断路径类型
@@ -88,11 +89,10 @@ public class BaiduOcrUtils {
     /**
      * 识别二进制
      * @param image
-     * @return 文本
+     * @return
      * @throws NotFoundValidAipOcrException
-     * @throws OcrAccountInvalidException
      */
-    public static String ocr(byte[] image) throws NotFoundValidAipOcrException, OcrAccountInvalidException {
+    public static String ocr(byte[] image) throws NotFoundValidAipOcrException {
         App app = getApp();
         AipOcr aipOcr = store.get(app);
         // 判断路径类型
@@ -112,18 +112,21 @@ public class BaiduOcrUtils {
     /**
      * 识别File
      * @param file
-     * @return 文本
+     * @return
      * @throws NotFoundValidAipOcrException
-     * @throws OcrAccountInvalidException
      * @throws IOException
      */
-    public static String ocr(File file) throws NotFoundValidAipOcrException, IOException {
+    public static String ocr(File file) throws NotFoundValidAipOcrException {
         App app = getApp();
         AipOcr aipOcr = store.get(app);
         // 判断路径类型
         JSONObject res;
-        try(InputStream input = new FileInputStream(file)) {
-            res = aipOcr.basicGeneral(IOUtils.toByteArray(input), new HashMap<>());
+        try {
+            try(InputStream input = new FileInputStream(file)) {
+                res = aipOcr.basicGeneral(IOUtils.toByteArray(input), new HashMap<>());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         String result = "";
         try {
@@ -141,11 +144,10 @@ public class BaiduOcrUtils {
      * 处理返回结果
      * @param res
      * @param app
-     * @return 文本内容
-     * @throws NotFoundValidAipOcrException
+     * @return
      * @throws OcrAccountInvalidException
      */
-    public static String handleResponse(JSONObject res, App app) throws NotFoundValidAipOcrException, OcrAccountInvalidException {
+    public static String handleResponse(JSONObject res, App app) throws OcrAccountInvalidException {
         String key = "error_code";
         String text = "";
         if(res.has(key)) {
