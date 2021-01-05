@@ -4,6 +4,7 @@ import com.baidu.aip.ocr.AipOcr;
 import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import site.dunhanson.ocr.baidu.entity.App;
@@ -12,10 +13,7 @@ import site.dunhanson.ocr.baidu.exception.OcrAccountInvalidException;
 import site.dunhanson.utils.basic.YamlUtils;
 import java.io.*;
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author dunhanson
@@ -26,16 +24,23 @@ import java.util.Map;
 public class BaiduOcrUtils {
     // OCR配置集合
     private static Map<App, AipOcr> store = Collections.synchronizedMap(new HashMap<>());
+    private static Map<String, String> dateStore = Collections.synchronizedMap(new HashMap<>());
 
     /**
-     * 静态代码块，初始化OCR配置
+     * 初始化
      */
-    static {
-        Type type = new TypeToken<List<App>>(){}.getType();
-        List<App> apps = YamlUtils.load("baidu-ocr.yaml", type, "apps");
-        for(App app : apps) {
-            AipOcr aipOcr = new AipOcr(app.getAppId(), app.getApiKey(), app.getSecretKey());
-            store.put(app, aipOcr);
+    public static void init() {
+        // 获取时间，如果为空，说明是第二天，则进行初始化store
+        // 当天则不处理
+        String nowDate = DateFormatUtils.format(new Date(), "yyyy-MM-dd");
+        if(dateStore.get(nowDate) == null) {
+            Type type = new TypeToken<List<App>>(){}.getType();
+            List<App> apps = YamlUtils.load("baidu-ocr.yaml", type, "apps");
+            for(App app : apps) {
+                AipOcr aipOcr = new AipOcr(app.getAppId(), app.getApiKey(), app.getSecretKey());
+                store.put(app, aipOcr);
+            }
+            dateStore.put(nowDate, nowDate);
         }
     }
 
@@ -44,6 +49,9 @@ public class BaiduOcrUtils {
      * @return App
      */
     private static App getApp() throws NotFoundValidAipOcrException {
+        // 初始化相关
+        init();
+        // 如果store为空，说明没有可用的ocr账号了
         if(store.isEmpty()) {
             throw new NotFoundValidAipOcrException();
         }
@@ -65,7 +73,16 @@ public class BaiduOcrUtils {
         } else {
             res = aipOcr.basicGeneral(pathOrUrl, new HashMap<>());
         }
-        return handleResponse(res, app);
+        String result = "";
+        try {
+            result = handleResponse(res, app);
+        } catch (OcrAccountInvalidException e) {
+            // ocr账号无效，删除对应，重新回调
+            log.warn(e.getMessage());
+            store.remove(app);
+            ocr(pathOrUrl);
+        }
+        return result;
     }
 
     /**
@@ -80,7 +97,16 @@ public class BaiduOcrUtils {
         AipOcr aipOcr = store.get(app);
         // 判断路径类型
         JSONObject res = aipOcr.basicGeneral(image, new HashMap<>());
-        return handleResponse(res, app);
+        String result = "";
+        try {
+            result = handleResponse(res, app);
+        } catch (OcrAccountInvalidException e) {
+            // ocr账号无效，删除对应，重新回调
+            log.warn(e.getMessage());
+            store.remove(app);
+            ocr(image);
+        }
+        return result;
     }
 
     /**
@@ -91,18 +117,24 @@ public class BaiduOcrUtils {
      * @throws OcrAccountInvalidException
      * @throws IOException
      */
-    public static String ocr(File file) throws NotFoundValidAipOcrException, OcrAccountInvalidException, IOException {
-        if(store.isEmpty()) {
-            throw new NotFoundValidAipOcrException();
-        }
-        App app = store.keySet().stream().findFirst().get();
+    public static String ocr(File file) throws NotFoundValidAipOcrException, IOException {
+        App app = getApp();
         AipOcr aipOcr = store.get(app);
         // 判断路径类型
         JSONObject res;
         try(InputStream input = new FileInputStream(file)) {
             res = aipOcr.basicGeneral(IOUtils.toByteArray(input), new HashMap<>());
         }
-        return handleResponse(res, app);
+        String result = "";
+        try {
+            result = handleResponse(res, app);
+        } catch (OcrAccountInvalidException e) {
+            // ocr账号无效，删除对应，重新回调
+            log.warn(e.getMessage());
+            store.remove(app);
+            ocr(file);
+        }
+        return result;
     }
 
     /**
