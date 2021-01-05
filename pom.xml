@@ -6,7 +6,7 @@
 
     <groupId>site.dunhanson.ocr</groupId>
     <artifactId>simple-ocr</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.4</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>simple ocr</description>
     <url>https://github.com/dunhanson/baidu-ocr</url>
@@ -72,6 +72,14 @@
         </dependency>
     </dependencies>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>baidu-ocr.yaml</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

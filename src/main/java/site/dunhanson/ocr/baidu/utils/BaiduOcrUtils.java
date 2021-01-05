@@ -4,6 +4,7 @@ import com.baidu.aip.ocr.AipOcr;
 import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -14,6 +15,7 @@ import site.dunhanson.utils.basic.YamlUtils;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author dunhanson
@@ -55,13 +57,15 @@ public class BaiduOcrUtils {
         if(store.isEmpty()) {
             throw new NotFoundValidAipOcrException();
         }
-        return store.keySet().stream().findFirst().get();
+        Set<App> appSet = store.keySet();
+        int index = RandomUtils.nextInt(0, appSet.size());
+        return appSet.stream().collect(Collectors.toList()).get(index);
     }
 
     /**
      * 文本识别
      * @param pathOrUrl
-     * @return
+     * @return 识别内容
      * @throws NotFoundValidAipOcrException
      */
     public static String ocr(String pathOrUrl) throws NotFoundValidAipOcrException {
@@ -89,7 +93,7 @@ public class BaiduOcrUtils {
     /**
      * 识别二进制
      * @param image
-     * @return
+     * @return 识别内容
      * @throws NotFoundValidAipOcrException
      */
     public static String ocr(byte[] image) throws NotFoundValidAipOcrException {
@@ -112,7 +116,7 @@ public class BaiduOcrUtils {
     /**
      * 识别File
      * @param file
-     * @return
+     * @return 识别内容
      * @throws NotFoundValidAipOcrException
      * @throws IOException
      */
@@ -144,7 +148,7 @@ public class BaiduOcrUtils {
      * 处理返回结果
      * @param res
      * @param app
-     * @return
+     * @return 识别内容
      * @throws OcrAccountInvalidException
      */
     public static String handleResponse(JSONObject res, App app) throws OcrAccountInvalidException {

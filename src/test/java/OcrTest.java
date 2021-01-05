@@ -17,8 +17,6 @@ public class OcrTest {
             text = BaiduOcrUtils.ocr(url);
         } catch (NotFoundValidAipOcrException e) {
             e.printStackTrace();
-        } catch (OcrAccountInvalidException e) {
-            e.printStackTrace();
         }
         System.out.println(text);
     }
@@ -29,10 +27,6 @@ public class OcrTest {
         String text = null;
         try {
             text = BaiduOcrUtils.ocr(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (OcrAccountInvalidException e) {
-            e.printStackTrace();
         } catch (NotFoundValidAipOcrException e) {
             e.printStackTrace();
         }
@@ -46,8 +40,6 @@ public class OcrTest {
         try (InputStream input = new FileInputStream(file)){
             text = BaiduOcrUtils.ocr(IOUtils.toByteArray(input));
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (OcrAccountInvalidException e) {
             e.printStackTrace();
         } catch (NotFoundValidAipOcrException e) {
             e.printStackTrace();
