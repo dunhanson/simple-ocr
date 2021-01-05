@@ -121,6 +121,10 @@ public class BaiduOcrUtils {
      * @throws IOException
      */
     public static String ocr(File file) throws NotFoundValidAipOcrException {
+        if(!file.exists()) {
+            log.warn("file not found, path={}", file.getAbsoluteFile());
+            return "";
+        }
         App app = getApp();
         AipOcr aipOcr = store.get(app);
         // 判断路径类型
