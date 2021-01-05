@@ -11,7 +11,6 @@ import org.json.JSONObject;
 import site.dunhanson.ocr.baidu.entity.App;
 import site.dunhanson.ocr.baidu.exception.NotFoundValidAipOcrException;
 import site.dunhanson.ocr.baidu.exception.OcrAccountInvalidException;
-import site.dunhanson.utils.basic.YamlUtils;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -84,8 +83,9 @@ public class BaiduOcrUtils {
         } catch (OcrAccountInvalidException e) {
             // ocr账号无效，删除对应，重新回调
             log.warn(e.getMessage());
+            log.warn("invalid account:{}", app.getName());
             store.remove(app);
-            ocr(pathOrUrl);
+            return ocr(pathOrUrl);
         }
         return result;
     }
@@ -163,7 +163,7 @@ public class BaiduOcrUtils {
             // 17每天请求量超限额
             // 19请求总量超限额
             // 14IAM 鉴权失败
-            if(errorCode == 17 || errorCode == 19 || errorCode == 14) {
+            if(errorCode == 17 || errorCode == 19 || errorCode == 14 || errorCode == 18) {
                 log.warn(res.toString() + "," + app.toString());
                 throw new OcrAccountInvalidException();
             } else {
