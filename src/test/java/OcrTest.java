@@ -46,4 +46,14 @@ public class OcrTest {
         }
         System.out.println(text);
     }
+
+    @Test
+    public void test() throws NotFoundValidAipOcrException {
+        System.out.println(BaiduOcrUtils.getApp().getAppId());
+        System.out.println(BaiduOcrUtils.getApp().getAppId());
+        System.out.println(BaiduOcrUtils.getApp().getAppId());
+        System.out.println(BaiduOcrUtils.getApp().getAppId());
+        System.out.println(BaiduOcrUtils.getApp().getAppId());
+        System.out.println(BaiduOcrUtils.getApp().getAppId());
+    }
 }

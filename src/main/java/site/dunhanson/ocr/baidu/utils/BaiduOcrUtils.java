@@ -50,7 +50,7 @@ public class BaiduOcrUtils {
      * 获取APP
      * @return App
      */
-    private static App getApp() throws NotFoundValidAipOcrException {
+    public static App getApp() throws NotFoundValidAipOcrException {
         // 初始化相关
         init();
         // 如果store为空，说明没有可用的ocr账号了
