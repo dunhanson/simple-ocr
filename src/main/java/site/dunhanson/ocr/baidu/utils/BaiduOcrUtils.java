@@ -11,6 +11,8 @@ import org.json.JSONObject;
 import site.dunhanson.ocr.baidu.entity.App;
 import site.dunhanson.ocr.baidu.exception.NotFoundValidAipOcrException;
 import site.dunhanson.ocr.baidu.exception.OcrAccountInvalidException;
+import site.dunhanson.ocr.baidu.exception.TooFastException;
+
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -34,7 +36,8 @@ public class BaiduOcrUtils {
         // 获取时间，如果为空，说明是第二天，则进行初始化store
         // 当天则不处理
         String nowDate = DateFormatUtils.format(new Date(), "yyyy-MM-dd");
-        if(dateStore.get(nowDate) == null) {
+        if(dateStore.get(nowDate) == null || store.isEmpty()) {
+            store.clear();
             Type type = new TypeToken<List<App>>(){}.getType();
             List<App> apps = YamlUtils.load("baidu-ocr.yaml", type, "apps");
             for(App app : apps) {
@@ -85,7 +88,15 @@ public class BaiduOcrUtils {
             log.warn(e.getMessage());
             log.warn("invalid account:{}", app.getName());
             store.remove(app);
-            return ocr(pathOrUrl);
+            result = ocr(pathOrUrl);
+        } catch (TooFastException e) {
+            log.warn(e.getMessage());
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
+            }
+            result = ocr(pathOrUrl);
         }
         return result;
     }
@@ -108,7 +119,15 @@ public class BaiduOcrUtils {
             // ocr账号无效，删除对应，重新回调
             log.warn(e.getMessage());
             store.remove(app);
-            ocr(image);
+            result = ocr(image);
+        } catch (TooFastException e) {
+            log.warn(e.getMessage());
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
+            }
+            result = ocr(image);
         }
         return result;
     }
@@ -143,7 +162,15 @@ public class BaiduOcrUtils {
             // ocr账号无效，删除对应，重新回调
             log.warn(e.getMessage());
             store.remove(app);
-            ocr(file);
+            result = ocr(file);
+        } catch (TooFastException e) {
+            log.warn(e.getMessage());
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
+            }
+            result = ocr(file);
         }
         return result;
     }
@@ -155,7 +182,7 @@ public class BaiduOcrUtils {
      * @return 识别内容
      * @throws OcrAccountInvalidException
      */
-    public static String handleResponse(JSONObject res, App app) throws OcrAccountInvalidException {
+    public static String handleResponse(JSONObject res, App app) throws OcrAccountInvalidException, TooFastException {
         String key = "error_code";
         String text = "";
         if(res.has(key)) {
@@ -163,9 +190,11 @@ public class BaiduOcrUtils {
             // 17每天请求量超限额
             // 19请求总量超限额
             // 14IAM 鉴权失败
-            if(errorCode == 17 || errorCode == 19 || errorCode == 14 || errorCode == 18) {
+            if(errorCode == 17 || errorCode == 19 || errorCode == 14) {
                 log.warn(res.toString() + "," + app.toString());
                 throw new OcrAccountInvalidException();
+            } else if(errorCode == 18) {
+                throw new TooFastException();
             } else {
                 log.warn(res.toString());
             }

@@ -23,7 +23,7 @@ public class OcrTest {
 
     @Test
     public void testFile() {
-        File file = new File("D:\\Test\\image\\1591962046774.jpg");
+        File file = new File("D:\\test\\1591962046774.jpg");
         String text = null;
         try {
             text = BaiduOcrUtils.ocr(file);
